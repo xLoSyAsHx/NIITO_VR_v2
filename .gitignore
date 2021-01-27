@@ -1,0 +1,17 @@
+Content/ExternalContent
+
+Binaries
+DerivedDataCache
+Intermediate
+Saved
+.vscode
+.vs
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.sln
+*.suo
+*.xcodeproj
+*.xcworkspace
+Content/TrainCasesBP/FearOfHeights/Maps/BaseMap_FOH_BuiltData.uasset
