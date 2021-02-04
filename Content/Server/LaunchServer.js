@@ -43,31 +43,15 @@ io.on('connection', function(socket){
             SecondName: 'Klinov'
           },
           {
+            FirstName:  'Petr1',
+            SecondName: 'Sazanov'
+          },
+          {
             FirstName:  'Dmitry3',
             SecondName: 'Klinov'
           },
           {
-            FirstName:  'Dmitry4',
-            SecondName: 'Klinov'
-          },
-          {
-            FirstName:  'Dmitry5',
-            SecondName: 'Klinov'
-          },
-          {
-            FirstName:  'Dmitry6',
-            SecondName: 'Klinov'
-          },
-          {
-            FirstName:  'Dmitry7',
-            SecondName: 'Klinov'
-          },
-          {
-            FirstName:  'Dmitry8',
-            SecondName: 'Klinov'
-          },
-          {
-            FirstName:  'Petr',
+            FirstName:  'Petr2',
             SecondName: 'Sazanov'
           }
         ]
