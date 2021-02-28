@@ -18,4 +18,7 @@ struct FPatientData
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString SecondName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Diagnose;
 };

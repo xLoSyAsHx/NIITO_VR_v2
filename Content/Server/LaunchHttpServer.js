@@ -36,23 +36,28 @@ const requestListener = function (req, res) {
               Patients: [
                   {
                     FirstName:  'Dmitry1',
-                    SecondName: 'Klinov'
+                    SecondName: 'Klinov',
+                    Diagnose: 'Acrophobia'
                   },
                   {
                     FirstName:  'Dmitry2',
-                    SecondName: 'Klinov'
+                    SecondName: 'Klinov',
+                    Diagnose: 'Acrophobia'
                   },
                   {
                     FirstName:  'Petr1',
-                    SecondName: 'Sazanov'
+                    SecondName: 'Sazanov',
+                    Diagnose: 'Acrophobia'
                   },
                   {
                     FirstName:  'Dmitry3',
-                    SecondName: 'Klinov'
+                    SecondName: 'Klinov',
+                    Diagnose: 'Acrophobia'
                   },
                   {
                     FirstName:  'Petr2',
-                    SecondName: 'Sazanov'
+                    SecondName: 'Sazanov',
+                    Diagnose: 'Acrophobia'
                   }
                 ]
             }))

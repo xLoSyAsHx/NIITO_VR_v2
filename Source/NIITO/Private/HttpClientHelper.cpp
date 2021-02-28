@@ -2,10 +2,13 @@
 
 
 #include "HttpClientHelper.h"
+#include "NIITOGameInstance.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonReader.h"
@@ -17,6 +20,12 @@ const FString AHttpClientHelper::NetPaths::GetPatientList = "/get_pl";
 void AHttpClientHelper::BeginPlay()
 {
     Super::BeginPlay();
+    auto GI = Cast<UNIITOGameInstance> (UGameplayStatics::GetGameInstance(GetWorld()));
+    if (GI)
+    {
+        if (!GI->SessionToken.IsEmpty())
+            m_token = GI->SessionToken;
+    }
 }
 
 AHttpClientHelper::AHttpClientHelper()
@@ -92,6 +101,9 @@ void AHttpClientHelper::OnAuthResponse(FHttpRequestPtr req, FHttpResponsePtr res
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Auth token: %s"), *token));
 
         m_token = token;
+        auto GI = Cast<UNIITOGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+        if (GI)
+            GI->SessionToken = m_token;
         m_onAuthSuccessDelegate.Execute(true);
     }
     else if (res->GetResponseCode() == EHttpResponseCodes::Denied)
@@ -131,7 +143,8 @@ void AHttpClientHelper::OnPatientListResponse(FHttpRequestPtr req, FHttpResponse
             const auto& obj = el->AsObject();
             patients.Add({
                 obj->GetStringField("FirstName"),
-                obj->GetStringField("SecondName") });
+                obj->GetStringField("SecondName"),
+                obj->GetStringField("Diagnose") });
         }
 
         m_onPLSuccessDelegate.Execute(true, patients);
