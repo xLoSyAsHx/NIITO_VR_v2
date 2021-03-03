@@ -14,6 +14,7 @@
 DECLARE_DYNAMIC_DELEGATE_OneParam(FAuthDelegate, bool, bAuthSuccess);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FPatientListDelegate, bool, bSuccess, const TArray<FPatientData>&, patients);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FAddPatientDelegate, bool, bSuccess, FString, errorMsg);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelPatientDelegate, bool, bSuccess, FString, errorMsg);
 
 UCLASS(Blueprintable)
 class NIITO_API AHttpClientHelper : public AActor
@@ -32,6 +33,9 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void AddPatientRequest(FPatientData data, FAddPatientDelegate delegate);
+
+    UFUNCTION(BlueprintCallable)
+    void DelPatientRequest(FPatientData data, FDelPatientDelegate delegate);
 
     UFUNCTION(BlueprintCallable)
     void Logout();
@@ -56,9 +60,12 @@ private:
 
     void OnAddPatientResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful);
 
+    void OnDelPatientResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful);
+
     FAuthDelegate m_onAuthOKDelegate;
     FPatientListDelegate m_onPLOKDelegate;
     FAddPatientDelegate m_onAddPatientOKDelegate;
+    FDelPatientDelegate m_onDelPatientOKDelegate;
     FString m_token;
 
     struct NetPaths
@@ -66,6 +73,7 @@ private:
         static const FString GET_Auth;
         static const FString GET_PatientList;
         static const FString POST_AddPatient;
+        static const FString POST_DelPatient;
     };
 };
 

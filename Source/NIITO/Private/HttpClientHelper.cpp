@@ -17,6 +17,7 @@
 const FString AHttpClientHelper::NetPaths::GET_Auth = "/auth";
 const FString AHttpClientHelper::NetPaths::GET_PatientList = "/get_pl";
 const FString AHttpClientHelper::NetPaths::POST_AddPatient = "/post_add_p";
+const FString AHttpClientHelper::NetPaths::POST_DelPatient = "/post_del_p";
 
 void AHttpClientHelper::BeginPlay()
 {
@@ -86,6 +87,38 @@ void AHttpClientHelper::AddPatientRequest(FPatientData data, FAddPatientDelegate
 
     //This is the url on which to process the request
     req->SetURL(FString::Printf(TEXT("%s%s"), *m_serverAddress, *NetPaths::POST_AddPatient));
+    req->SetVerb("POST");
+    req->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+    req->SetHeader(TEXT("authorization"), FString::Printf(TEXT("%s"), *m_token));
+    req->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+
+    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+    JsonObject->SetStringField(TEXT("FirstName"), data.FirstName);
+    JsonObject->SetStringField(TEXT("SecondName"), data.SecondName);
+    JsonObject->SetStringField(TEXT("Diagnose"), data.Diagnose);
+
+    FString jsonOutputString;
+    TSharedRef<TJsonWriter<TCHAR>> jsonWriter = TJsonWriterFactory<TCHAR>::Create(&jsonOutputString);
+    FJsonSerializer::Serialize(JsonObject.ToSharedRef(), jsonWriter);
+    req->SetContentAsString(jsonOutputString);
+    req->ProcessRequest();
+}
+
+void AHttpClientHelper::DelPatientRequest(FPatientData data, FDelPatientDelegate delegate)
+{
+    if (!delegate.IsBound())
+    {
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Error. Invalid delegate."));
+        return;
+    }
+    m_onDelPatientOKDelegate = delegate;
+
+    auto req = FHttpModule::Get().CreateRequest();
+    req->OnProcessRequestComplete().BindUObject(this, &AHttpClientHelper::OnDelPatientResponse);
+
+    //This is the url on which to process the request
+    req->SetURL(FString::Printf(TEXT("%s%s"), *m_serverAddress, *NetPaths::POST_DelPatient));
     req->SetVerb("POST");
     req->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
     req->SetHeader(TEXT("authorization"), FString::Printf(TEXT("%s"), *m_token));
@@ -179,7 +212,11 @@ void AHttpClientHelper::OnPatientListResponse(FHttpRequestPtr req, FHttpResponse
 
 void AHttpClientHelper::OnAddPatientResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful)
 {
-    if (bWasSuccessful && res->GetResponseCode() == EHttpResponseCodes::Ok
+    if (bWasSuccessful && res->GetResponseCode() == EHttpResponseCodes::Ok && res->GetContentLength() == 0)
+    {
+        m_onAddPatientOKDelegate.Execute(true, "");
+    }
+    else if (bWasSuccessful && res->GetResponseCode() == EHttpResponseCodes::Ok
         && res->GetContentType() == "application/json")
     {
         TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
@@ -196,12 +233,45 @@ void AHttpClientHelper::OnAddPatientResponse(FHttpRequestPtr req, FHttpResponseP
         FString errMsg = JsonObject->GetStringField("ErrorMsg");
         if (GEngine)
             GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, errMsg);
-        m_onAddPatientOKDelegate.Execute(true, errMsg);
+        m_onAddPatientOKDelegate.Execute(false, errMsg);
     }
     else
     {
         if (GEngine)
             GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Server error. Failed to add patient"));
         m_onAddPatientOKDelegate.Execute(false, TEXT("Server error. Failed to add patient"));
+    }
+}
+
+void AHttpClientHelper::OnDelPatientResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful)
+{
+    if (bWasSuccessful && res->GetResponseCode() == EHttpResponseCodes::Ok && res->GetContentLength() == 0)
+    {
+        m_onDelPatientOKDelegate.Execute(true, "");
+    }
+    else if (bWasSuccessful && res->GetResponseCode() == EHttpResponseCodes::Ok
+        && res->GetContentType() == "application/json")
+    {
+        TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+        TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(res->GetContentAsString());
+        FJsonSerializer::Deserialize(JsonReader, JsonObject);
+
+        if (GEngine && !JsonObject.IsValid())
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Failed to parse Json."));
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Content: %s"), *res->GetContentAsString()));
+            return;
+        }
+
+        FString errMsg = JsonObject->GetStringField("ErrorMsg");
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, errMsg);
+        m_onAddPatientOKDelegate.Execute(false, errMsg);
+    }
+    else
+    {
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Server error. Failed to del patient"));
+        m_onDelPatientOKDelegate.Execute(false, TEXT("Server error. Failed to del patient"));
     }
 }

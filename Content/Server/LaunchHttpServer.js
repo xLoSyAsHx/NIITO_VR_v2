@@ -87,13 +87,53 @@ const requestListener = function (req, res) {
                   Diagnose: content['Diagnose']
                 });
 
+                res.writeHead(200);
+                res.end();
+            });
+        }
+        else
+        {
+            res.writeHead(401);
+            res.end();
+        }
+        break;
+    case "/post_del_p":
+        if (req.headers["authorization"] == token)
+        {
+            let body = '';
+            let content;
+            req.on('data', chunk => {
+                body += chunk.toString(); // convert Buffer to string
+            });
+            req.on('end', () => {
+                content = JSON.parse(body);
+
+                var idx = PATIENTS['Patients'].indexOf({
+                  FirstName:  content['FirstName'],
+                  SecondName: content['SecondName'],
+                  Diagnose: content['Diagnose']
+                });
+                for (var idx = 0; idx < PATIENTS['Patients'].length; ++idx)
+                {
+                  var p = PATIENTS['Patients'][idx];
+                   if (p['FirstName'] == content['FirstName'] &&
+                       p['SecondName'] == content['SecondName'] &&
+                       p['Diagnose'] == content['Diagnose'])
+                   {
+                      PATIENTS['Patients'].splice(idx, 1);
+                      res.writeHead(200);
+                      res.end();
+                      return;
+                   }
+                }
+
                 res.setHeader("Content-Type", "application/json");
                 res.writeHead(200);
                 res.end(JSON.stringify({
-                  ErrorMsg: ""
+                  ErrorMsg: "Patient not found: " + body
                 }));
-            });
 
+            });
         }
         else
         {
