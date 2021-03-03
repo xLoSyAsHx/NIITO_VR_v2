@@ -77,7 +77,7 @@ void AHttpClientHelper::PatientListRequest(FPatientListDelegate delegate)
     req->ProcessRequest();
 }
 
-void AHttpClientHelper::AddPatientRequest(FString firstName, FString secondName, FString diagnose, FAddPatientDelegate delegate)
+void AHttpClientHelper::AddPatientRequest(FPatientData data, FAddPatientDelegate delegate)
 {
     m_onAddPatientOKDelegate = delegate;
 
@@ -92,9 +92,9 @@ void AHttpClientHelper::AddPatientRequest(FString firstName, FString secondName,
     req->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 
     TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-    JsonObject->SetStringField(TEXT("FirstName"), firstName);
-    JsonObject->SetStringField(TEXT("SecondName"), secondName);
-    JsonObject->SetStringField(TEXT("Diagnose"), diagnose);
+    JsonObject->SetStringField(TEXT("FirstName"), data.FirstName);
+    JsonObject->SetStringField(TEXT("SecondName"), data.SecondName);
+    JsonObject->SetStringField(TEXT("Diagnose"), data.Diagnose);
 
     FString jsonOutputString;
     TSharedRef<TJsonWriter<TCHAR>> jsonWriter = TJsonWriterFactory<TCHAR>::Create(&jsonOutputString);

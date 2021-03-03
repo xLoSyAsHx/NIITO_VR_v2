@@ -4,6 +4,36 @@ const host = 'localhost';
 const port = 8000;
 const token = Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
 
+var PATIENTS = {
+  Patients: [
+    {
+      FirstName:  'Dmitry1',
+      SecondName: 'Klinov',
+      Diagnose: 'Acrophobia'
+    },
+    {
+      FirstName:  'Dmitry2',
+      SecondName: 'Klinov',
+      Diagnose: 'Acrophobia'
+    },
+    {
+      FirstName:  'Petr1',
+      SecondName: 'Sazanov',
+      Diagnose: 'Acrophobia'
+    },
+    {
+      FirstName:  'Dmitry3',
+      SecondName: 'Klinov',
+      Diagnose: 'Acrophobia'
+    },
+    {
+      FirstName:  'Petr2',
+      SecondName: 'Sazanov',
+      Diagnose: 'Acrophobia'
+    }
+  ]
+}
+
 const requestListener = function (req, res) {
     console.log(`\n===============\nreq.method: ${req.method}`);
     
@@ -32,35 +62,7 @@ const requestListener = function (req, res) {
         {
             res.setHeader("Content-Type", "application/json");
             res.writeHead(200);
-            res.end(JSON.stringify({
-              Patients: [
-                  {
-                    FirstName:  'Dmitry1',
-                    SecondName: 'Klinov',
-                    Diagnose: 'Acrophobia'
-                  },
-                  {
-                    FirstName:  'Dmitry2',
-                    SecondName: 'Klinov',
-                    Diagnose: 'Acrophobia'
-                  },
-                  {
-                    FirstName:  'Petr1',
-                    SecondName: 'Sazanov',
-                    Diagnose: 'Acrophobia'
-                  },
-                  {
-                    FirstName:  'Dmitry3',
-                    SecondName: 'Klinov',
-                    Diagnose: 'Acrophobia'
-                  },
-                  {
-                    FirstName:  'Petr2',
-                    SecondName: 'Sazanov',
-                    Diagnose: 'Acrophobia'
-                  }
-                ]
-            }))
+            res.end(JSON.stringify(PATIENTS));
         }
         else
         {
@@ -68,7 +70,37 @@ const requestListener = function (req, res) {
             res.end();
         }
         break
+    case "/post_add_p":
+        if (req.headers["authorization"] == token)
+        {
+            let body = '';
+            let content;
+            req.on('data', chunk => {
+                body += chunk.toString(); // convert Buffer to string
+            });
+            req.on('end', () => {
+                content = JSON.parse(body);
 
+                PATIENTS['Patients'].push({
+                  FirstName:  content['FirstName'],
+                  SecondName: content['SecondName'],
+                  Diagnose: content['Diagnose']
+                });
+
+                res.setHeader("Content-Type", "application/json");
+                res.writeHead(200);
+                res.end(JSON.stringify({
+                  ErrorMsg: ""
+                }));
+            });
+
+        }
+        else
+        {
+            res.writeHead(401);
+            res.end();
+        }
+        break;
 
     default:
         res.writeHead(200);

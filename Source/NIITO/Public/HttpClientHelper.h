@@ -31,7 +31,7 @@ public:
     void PatientListRequest(FPatientListDelegate delegate);
 
     UFUNCTION(BlueprintCallable)
-    void AddPatientRequest(FString firstName, FString secondName, FString diagnose, FAddPatientDelegate delegate);
+    void AddPatientRequest(FPatientData data, FAddPatientDelegate delegate);
 
     UFUNCTION(BlueprintCallable)
     void Logout();
