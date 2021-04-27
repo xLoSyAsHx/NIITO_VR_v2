@@ -10,6 +10,6 @@ public class NIITOEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
-		ExtraModuleNames.AddRange( new string[] { "NIITO" } );
+		ExtraModuleNames.AddRange(new string[] { "NIITO" });
 	}
 }

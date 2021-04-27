@@ -14,10 +14,19 @@ struct FPatientData
     GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString ID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString FirstName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FString SecondName;
+    FString SurName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString LastName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FDateTime Birthday;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString Diagnose;

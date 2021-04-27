@@ -8,13 +8,14 @@
 #include "GameFramework/Actor.h"
 #include "Templates/SharedPointer.h"
 #include "HttpModule.h"
+#include "Dom/JsonObject.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpClientHelper.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FAuthDelegate, bool, bAuthSuccess);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FAuthLoginDelegate,   bool, bSuccess, FString, errorMsg);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FPatientListDelegate, bool, bSuccess, const TArray<FPatientData>&, patients);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FAddPatientDelegate, bool, bSuccess, FString, errorMsg);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelPatientDelegate, bool, bSuccess, FString, errorMsg);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FAddPatientDelegate,  bool, bSuccess, FString, errorMsg);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelPatientDelegate,  bool, bSuccess, FString, errorMsg);
 
 UCLASS(Blueprintable)
 class NIITO_API AHttpClientHelper : public AActor
@@ -26,7 +27,10 @@ public:
     AHttpClientHelper();
 
     UFUNCTION(BlueprintCallable)
-    void AuthRequest(FString name, FString password, FAuthDelegate delegate);
+    void AuthRequest(FAuthLoginDelegate delegate);
+
+    UFUNCTION(BlueprintCallable)
+    void LoginRequest(FString email, FString password, FAuthLoginDelegate delegate);
 
     UFUNCTION(BlueprintCallable)
     void PatientListRequest(FPatientListDelegate delegate);
@@ -46,15 +50,19 @@ public:
     UPROPERTY(EditAnywhere)
     USceneComponent* Mesh;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FString m_serverAddress = "http://localhost:8000";
+    UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+    FString m_serverAddress = "http://patients-back.past-tech.ru";
 
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
 private:
+    void ExtractAndSaveToken(TSharedPtr<FJsonObject> jsonObject);
+
     void OnAuthResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful);
+
+    void OnLoginResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful);
 
     void OnPatientListResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful);
 
@@ -62,16 +70,18 @@ private:
 
     void OnDelPatientResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful);
 
-    FAuthDelegate m_onAuthOKDelegate;
+    FAuthLoginDelegate m_onAuthLoginOKDelegate;
     FPatientListDelegate m_onPLOKDelegate;
     FAddPatientDelegate m_onAddPatientOKDelegate;
     FDelPatientDelegate m_onDelPatientOKDelegate;
     FString m_token;
+    FString m_lastLoginEmail;
 
     struct NetPaths
     {
+        static const FString POST_login;
         static const FString GET_Auth;
-        static const FString GET_PatientList;
+        static const FString POST_PatientList;
         static const FString POST_AddPatient;
         static const FString POST_DelPatient;
     };

@@ -10,6 +10,6 @@ public class NIITOTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
-		ExtraModuleNames.AddRange( new string[] { "NIITO" } );
+		ExtraModuleNames.AddRange(new string[] { "NIITO" });
 	}
 }
