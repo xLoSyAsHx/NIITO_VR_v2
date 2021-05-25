@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "HttpClientHelper.h"
@@ -20,7 +20,7 @@
 
 const FString AHttpClientHelper::NetPaths::POST_login = "/login";
 const FString AHttpClientHelper::NetPaths::GET_Auth = "/auth";
-const FString AHttpClientHelper::NetPaths::POST_PatientList = "/get_patients";
+const FString AHttpClientHelper::NetPaths::POST_PatientList = "/get_unreal_data";
 const FString AHttpClientHelper::NetPaths::POST_AddPatient = "/post_add_p";
 const FString AHttpClientHelper::NetPaths::POST_DelPatient = "/post_del_p";
 
@@ -258,6 +258,8 @@ void AHttpClientHelper::OnLoginResponse(FHttpRequestPtr req, FHttpResponsePtr re
 void AHttpClientHelper::OnPatientListResponse(FHttpRequestPtr req, FHttpResponsePtr res, bool bWasSuccessful)
 {
     TArray<FPatientData> patients;
+    TArray<FPhobiaData> phobias;
+    TArray<FDeviceData> devices;
 
     if (bWasSuccessful && res->GetResponseCode() == EHttpResponseCodes::Ok)
     {
@@ -272,8 +274,15 @@ void AHttpClientHelper::OnPatientListResponse(FHttpRequestPtr req, FHttpResponse
             return;
         }
 
+        std::ofstream asd("C:\\WORKSPACE\\text.txt");
+        if (asd.is_open())
+        {
+            asd << std::string(TCHAR_TO_UTF8(*res->GetContentAsString()));
+            asd.close();
+        }
 
-        for (auto& el : JsonObject->GetArrayField("data"))
+        const auto& jsonDataDict = JsonObject->GetObjectField("data");
+        for (auto& el : jsonDataDict->GetArrayField("patients"))
         {
             const auto& obj = el->AsObject();
             FDateTime birthday;
@@ -284,17 +293,39 @@ void AHttpClientHelper::OnPatientListResponse(FHttpRequestPtr req, FHttpResponse
                 obj->GetStringField("surname"),
                 obj->GetStringField("lastname"),
                 birthday,
-                // obj->GetStringField("phobia") });
-                "Acrophobia" });
+                //obj->GetStringField("phobia") });
+                TEXT("Акрофобия") });
         }
 
-        m_onPLOKDelegate.Execute(true, patients);
+        for (auto& el : jsonDataDict->GetArrayField("phobias"))
+        {
+            const auto& obj = el->AsObject();
+            phobias.Add({
+                obj->GetStringField("_id"),
+                obj->GetStringField("name")});
+        }
+
+        for (auto& el : jsonDataDict->GetArrayField("devices"))
+        {
+            const auto& obj = el->AsObject();
+            devices.Add({
+
+                obj->GetStringField("_id"),
+                obj->GetStringField("device_uuid")});
+        }
+
+        if (auto GI = Cast<UNIITOGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+        {
+            GI->SetKnownDevices(devices);
+        }
+
+        m_onPLOKDelegate.Execute(true, patients, phobias, devices);
     }
     else
     {
         if (GEngine)
             GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Failed to get PL. Error code: %d"), res->GetResponseCode()));
-        m_onPLOKDelegate.Execute(false, patients);
+        m_onPLOKDelegate.Execute(false, patients, phobias, devices);
     }
 }
 

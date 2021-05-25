@@ -3,6 +3,8 @@
 #pragma once
 
 #include "PatientData.h"
+#include "PhobiaData.h"
+#include "DeviceData.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -13,7 +15,7 @@
 #include "HttpClientHelper.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FAuthLoginDelegate,   bool, bSuccess, FString, errorMsg);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FPatientListDelegate, bool, bSuccess, const TArray<FPatientData>&, patients);
+DECLARE_DYNAMIC_DELEGATE_FourParams(FPatientListDelegate, bool, bSuccess, const TArray<FPatientData>&, patients, const TArray<FPhobiaData>&, phobias, const TArray<FDeviceData>&, devices);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FAddPatientDelegate,  bool, bSuccess, FString, errorMsg);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelPatientDelegate,  bool, bSuccess, FString, errorMsg);
 

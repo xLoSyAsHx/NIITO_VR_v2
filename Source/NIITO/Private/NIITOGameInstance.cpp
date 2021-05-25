@@ -19,7 +19,18 @@ void UNIITOGameInstance::Init()
 
 }
 
+void UNIITOGameInstance::SetKnownDevices(const TArray<FDeviceData>& devices)
+{
+    m_knownDevices.Empty();
+    m_knownDevices = devices;
+}
+
 bool UNIITOGameInstance::HasLevel(FName LevelName) const
 {
     return m_knownLevels.Contains(LevelName.ToString());
+}
+
+const TArray<FDeviceData>& UNIITOGameInstance::GetKnownDevices() const
+{
+    return m_knownDevices;
 }

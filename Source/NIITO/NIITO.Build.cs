@@ -7,8 +7,8 @@ public class NIITO : ModuleRules
 	public NIITO(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Http", "Json", "SIOJson", "JsonUtilities", "SocketIOClient", "SocketIOLib", "Sockets" });
+
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Http", "Json", "JsonUtilities", "SIO" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
